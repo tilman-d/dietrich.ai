@@ -251,7 +251,8 @@ html {
     background-image: url('../images/rocket+1.jpg');
     background-position: center;
     background-size: cover;
-    min-height: 1458px;
+    min-height: 1020px; /* Reduced by 30% (10% from top, 20% from bottom) from 1458px */
+    padding-top: 146px; /* Added top padding of 10% of original height */
 }
 
 /* .hero-bg{
@@ -1181,7 +1182,8 @@ button {
     }
     .hero-section{
      background-image: url('../images/rocket+1.jpg');   
-     min-height: 1341px;
+     min-height: 939px; /* Reduced by 30% from 1341px */
+     padding-top: 134px; /* Added top padding of 10% of original height */
     }
     .contact-form{
         padding: 20px;
