@@ -543,7 +543,12 @@
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
     <script type="text/javascript">
         (function () {
-            emailjs.init("NCde8m8_OmFB68ZtS");
+            try {
+                emailjs.init("NCde8m8_OmFB68ZtS");
+                console.log("EmailJS initialized successfully");
+            } catch (error) {
+                console.error("EmailJS initialization failed:", error);
+            }
         })();
 
         function validateEmail(email) {
@@ -588,10 +593,11 @@
                     document.getElementById("name").value = '';
                     document.getElementById("email").value = '';
                     document.getElementById("message").value = '';
-                }, function (error) {
+                })
+                .catch(function (error) {
                     document.getElementById("loading").style.display = "none";
-                    alert("Failed to send email. Please try again.");
-                    console.log('FAILED...', error);
+                    console.error('FAILED...', error);
+                    alert("Failed to send email: " + (error.message || "Please check your network connection and try again."));
                 });
         }
     </script>
