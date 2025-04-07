@@ -251,7 +251,7 @@ html {
     background-image: url('../images/rocket+1.jpg');
     background-position: center;
     background-size: cover;
-    min-height: 900px;
+    min-height: 1458px;
 }
 
 /* .hero-bg{
@@ -553,7 +553,6 @@ button {
 
 
 .hero_product__ueupT {
-    margin-top: 10rem;
     margin-bottom: 3rem;
     width: 100%;
     display: relative;
@@ -1161,11 +1160,9 @@ button {
         font-size: 30px;
     }
     .hero_product__ueupT{
-        margin-top: 6rem;
+        margin-top: 3rem;
     }
-    .hero-section{
-        min-height: 750px;
-    }
+    .hero-section{}
 }
 
 @media(max-width:500px) {
@@ -1184,7 +1181,7 @@ button {
     }
     .hero-section{
      background-image: url('../images/rocket+1.jpg');   
-     min-height: 700px;
+     min-height: 1341px;
     }
     .contact-form{
         padding: 20px;
