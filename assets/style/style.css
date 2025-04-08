@@ -251,7 +251,7 @@ html {
     background-image: url('../images/rocket+1.jpg');
     background-position: center;
     background-size: cover;
-    min-height: 1020px; /* Reduced by 30% (10% from top, 20% from bottom) from 1458px */
+    min-height: 732px; /* Reduced by 30% (10% from top, 20% from bottom) from 1458px */
 }
 
 /* .hero-bg{
