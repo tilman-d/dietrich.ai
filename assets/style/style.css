@@ -252,7 +252,6 @@ html {
     background-position: center;
     background-size: cover;
     min-height: 1020px; /* Reduced by 30% (10% from top, 20% from bottom) from 1458px */
-    padding-top: 146px; /* Added top padding of 10% of original height */
 }
 
 /* .hero-bg{
@@ -1025,7 +1024,7 @@ button {
 
     .hero_product__ueupT {
         margin-bottom: 2rem;
-        margin-top: 22vw;
+        margin-top: 4vw;
     }
 
     .hero_product__ueupT h2 {
@@ -1084,10 +1083,6 @@ button {
     .hero_intro__content__LFApp {
         width: 40%;
         max-width: 420px;
-    }
-
-    .hero_product__ueupT {
-        margin-top: 30vw;
     }
 
     .hero_product__ueupT h2 {
