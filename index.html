@@ -26,6 +26,11 @@
                             </a>
                         </li>
                         <li>
+                            <a href="#assistant">
+                                Chat
+                            </a>
+                        </li>
+                        <li>
                             <a href="#letter">
                                 About
                             </a>
@@ -64,6 +69,11 @@
                     <li>
                         <a href="#home-section">
                             Home
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#assistant">
+                            Chat
                         </a>
                     </li>
                     <li>
@@ -403,6 +413,45 @@
 
     </section>
 
+    <section class="assistant-section" id="assistant">
+        <div class="assistant-section__bg"></div>
+        <div class="assistant-section__container container">
+            <div class="assistant-section__intro">
+                <h2 class="assistant-section__title">Wingman</h2>
+                <p class="assistant-section__copy">
+                    Get instant, reliable answers to your Salesforce questions.<br>
+                    Wingman runs on its own fine-tuned model &mdash; <a href="https://huggingface.co" target="_blank" rel="noopener">Hugging Face</a> &mdash; trained specifically to help users, developers and admins alike.<br>
+                    <em>(Beta notice: Wingman is still learning and may occasionally make mistakes.)</em>
+                </p>
+            </div>
+
+            <div class="assistant-chat">
+                <div class="assistant-chat__messages" id="assistantMessages">
+                    <div class="assistant-message assistant-message--ai">
+                        <span class="assistant-message__sender">Wingman</span>
+                        <p class="assistant-message__body">Hi there! What Salesforce challenge can I help you solve today?</p>
+                    </div>
+                </div>
+
+                <form class="assistant-chat__form" id="assistantForm">
+                    <label class="assistant-chat__label" for="assistantPrompt">Your question</label>
+                    <div class="assistant-chat__composer">
+                        <textarea id="assistantPrompt" name="prompt" rows="1" placeholder="Ask about migrations, automations, best practices..." required></textarea>
+                        <button type="submit" class="assistant-chat__submit" aria-label="Send message" disabled>
+                            <span class="assistant-chat__submit_icon" aria-hidden="true">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M5 12h14"></path>
+                                    <path d="m12 5 7 7-7 7"></path>
+                                </svg>
+                            </span>
+                        </button>
+                    </div>
+                    <p class="assistant-chat__disclaimer">None of your data will be stored.</p>
+                </form>
+            </div>
+        </div>
+    </section>
+
 
 
 
@@ -589,6 +638,114 @@
     </script>
 
 
+
+    <script>
+        (function () {
+            const assistantForm = document.getElementById('assistantForm');
+            const assistantMessages = document.getElementById('assistantMessages');
+            const assistantPrompt = document.getElementById('assistantPrompt');
+            const assistantSubmit = document.querySelector('.assistant-chat__submit');
+
+            if (!assistantForm || !assistantMessages || !assistantPrompt || !assistantSubmit) {
+                return;
+            }
+
+            let minHeight = parseInt(window.getComputedStyle(assistantPrompt).minHeight, 10) || 0;
+
+            const autoResize = () => {
+                assistantPrompt.style.height = 'auto';
+                const newHeight = Math.max(minHeight, assistantPrompt.scrollHeight);
+                assistantPrompt.style.height = `${newHeight}px`;
+            };
+
+            const syncSubmitState = () => {
+                const hasContent = assistantPrompt.value.trim().length > 0;
+                assistantSubmit.disabled = !hasContent;
+            };
+
+            autoResize();
+            syncSubmitState();
+            assistantPrompt.addEventListener('input', () => {
+                autoResize();
+                syncSubmitState();
+            });
+            window.addEventListener('resize', () => {
+                minHeight = parseInt(window.getComputedStyle(assistantPrompt).minHeight, 10) || 0;
+                autoResize();
+                syncSubmitState();
+            });
+
+            let conversation = [
+                {
+                    role: 'system',
+                    content: 'You are Tilman, a seasoned Salesforce consultant. Offer concise, practical, and actionable advice.'
+                }
+            ];
+
+            const createBubble = (text, role = 'assistant') => {
+                const wrapper = document.createElement('div');
+                wrapper.className = `assistant-message assistant-message--${role === 'user' ? 'user' : 'ai'}`;
+
+                const sender = document.createElement('span');
+                sender.className = 'assistant-message__sender';
+                sender.textContent = role === 'user' ? 'You' : 'Wingman';
+
+                const body = document.createElement('p');
+                body.className = 'assistant-message__body';
+                body.textContent = text;
+
+                wrapper.append(sender, body);
+                assistantMessages.appendChild(wrapper);
+                assistantMessages.scrollTop = assistantMessages.scrollHeight;
+            };
+
+            assistantForm.addEventListener('submit', async (event) => {
+                event.preventDefault();
+                const prompt = assistantPrompt.value.trim();
+
+                if (!prompt) {
+                    return;
+                }
+
+                createBubble(prompt, 'user');
+                assistantPrompt.value = '';
+                autoResize();
+                assistantPrompt.focus();
+                syncSubmitState();
+
+                const spinner = document.createElement('div');
+                spinner.className = 'assistant-message assistant-message--ai';
+                spinner.innerHTML = '<span class="assistant-message__sender">Wingman</span><p class="assistant-message__body">Thinking...</p>';
+                assistantMessages.appendChild(spinner);
+                assistantMessages.scrollTop = assistantMessages.scrollHeight;
+
+                const payload = { messages: [...conversation, { role: 'user', content: prompt }] };
+
+                try {
+                    const response = await fetch('/api/chat', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+
+                    if (!response.ok) {
+                        throw new Error('Request failed');
+                    }
+
+                    const data = await response.json();
+                    const message = data?.choices?.[0]?.message?.content?.trim() || 'I did not catch that. Could you rephrase?';
+
+                    conversation = [...payload.messages, { role: 'assistant', content: message }];
+                    spinner.remove();
+                    createBubble(message, 'assistant');
+                } catch (error) {
+                    spinner.remove();
+                    createBubble('I ran into an issue reaching the assistant. Please try again in a moment.', 'assistant');
+                    console.error(error);
+                }
+            });
+        })();
+    </script>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
